@@ -1,0 +1,43 @@
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>PROX'IA — retour d'autorisation</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center;
+         background:#061024; color:#E8F2FF;
+         font:16px/1.6 -apple-system, "Segoe UI", system-ui, sans-serif; }
+  .carte { max-width:34rem; padding:2.5rem; text-align:center; }
+  h1 { font-size:1.35rem; margin:0 0 .6rem; letter-spacing:.01em; }
+  p { margin:.4rem 0; color:#A8C4E0; }
+  a { color:#4A9FE8; }
+</style>
+
+<div class="carte">
+  <h1>Autorisation reçue</h1>
+  <p>Retour vers votre tableau de bord PROX'IA…</p>
+  <p id="secours" hidden>Si rien ne se passe :
+     <a id="lien" href="#">ouvrir le tableau de bord</a></p>
+</div>
+
+<script>
+/* Relais d'autorisation OAuth.
+   TikTok (et d'autres) refusent une adresse de retour en localhost : l'adresse
+   declaree doit etre publique et en HTTPS. Cette page ne fait QUE renvoyer les
+   parametres rendus par le reseau vers le serveur local, qui seul detient le
+   secret d'application et verifie le `state`.
+   Elle ne stocke rien, n'appelle aucun tiers, et n'ecrit nulle part. */
+(function () {
+  var LOCAL = "http://localhost:8773";     // seule destination permise
+  var params = window.location.search || "";
+  /* Le reseau peut etre porte en parametre : ...?...&reseau=tiktok
+     A defaut, tiktok — c'est le seul qui passe par ce relais aujourd'hui. */
+  var reseau = new URLSearchParams(params).get("reseau") || "tiktok";
+  if (!/^[a-z]+$/.test(reseau)) { reseau = "tiktok"; }
+
+  var cible = LOCAL + "/oauth/" + reseau + "/retour" + params;
+  document.getElementById("lien").href = cible;
+  document.getElementById("secours").hidden = false;
+  window.location.replace(cible);
+})();
+</script>
